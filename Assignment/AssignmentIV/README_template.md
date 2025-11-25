@@ -11,16 +11,19 @@ Email: raypong6@gmail.com
 ### Integer Keys 
 - Formula / pseudocode:
   ```text
-  index = (key % m + m) % m
+      h *= 0x9E3779B9; // Golden Ratio
+      h ^= (h << 13); h ^= (h >> 17); h ^= (h << 5); // Xorshift
+      h *= 0x85EBCA6B; // Final Mix
+      index = h % m;
   ```
-- Rationale: I used the Division Method. It is computationally efficient (O(1)) and provides uniform distribution when the table size $m$ is a prime number. I also added a check to handle negative integers correctly.
+- Rationale:I designed a custom method combining Multiplicative Hashing with Xorshift. By multiplying with a Golden Ratio constant and applying bitwise shifts, I induce an "Avalanche Effect". This ensures that sequential keys (e.g., 21, 22) map to widely different indices, rather than sequential ones.
 
 ### Non-integer Keys
 - Formula / pseudocode:
   ```text
-  hash = (hash * 31 + char_value) % m
+  h = ((h << 5) | (h >> 27)) ^ char ^ index ^ 0xDEADBEEF;
   ```
-- Rationale: I used the Polynomial Rolling Hash with a base of $P=31$. This method ensures that the order of characters affects the hash value (avoiding collisions for anagrams) and distributes strings effectively across the table.
+- Rationale:I designed a "Spiral" loop that incorporates Circular Rotation and Index Mixing. Unlike standard hashing, this method XORs the position (i) of the character into the hash, ensuring that anagrams (like "cat" and "act") produce completely different results.
 
 ## Experimental Setup
 - Table sizes tested (m): 10, 11, 37
@@ -33,9 +36,9 @@ Email: raypong6@gmail.com
 ## Results
 | Table Size (m) | Index Sequence         | Observation              |
 |----------------|------------------------|--------------------------|
-| 10             | 1, 2, 3, 4, ...        | High Collision Rate: Keys with same last digit (e.g., 21 & 51) map to same index. |
-| 11             | 10, 0, 1, 2, ...       | Better Distribution: 21 maps to 10, while 51 maps to 7. Pattern is less obvious.  |
-| 37             | 20, 21, 22, 23, ...    | No Collisions: In this dataset, every integer maps to a unique index.             |
+| 10             | 9, 8, 9, 0, 3...        | Best Distribution: For strings, there were Zero Collisions. For integers, collisions were significantly reduced compared to m=10. |
+| 11             | 9, 0, 9, 4, 9...      | Clustered: Despite being prime, index 9 was still heavily targeted (keys 21, 23, 25, 27).  |
+| 37             | 23, 30, 27, 2...    | Best Distribution: For strings, there were Zero Collisions. For integers, collisions were significantly reduced compared to m=10.             |
 
 ## Compilation, Build, Execution, and Output
 
@@ -86,144 +89,137 @@ Email: raypong6@gmail.com
   === Table Size m = 10 ===
   Key     Index
   -----------------
-  21      1
-  22      2
-  23      3
-  24      4
-  25      5
-  26      6
-  27      7
-  28      8
-  29      9
-  30      0
-  51      1
-  52      2
-  53      3
-  54      4
-  55      5
-  56      6
+  21      9
+  22      8
+  23      9
+  24      0
+  25      3
+  26      5
+  27      9
+  28      5
+  29      2
+  30      8
+  51      4
+  52      9
+  53      5
+  54      9
+  55      7
+  56      0
   57      7
-  58      8
+  58      2
   59      9
-  60      0
-
+  60      7
+  ```
+- Observation: Heavy clustering at index 9.
+  ```
   === Table Size m = 11 ===
   Key     Index
   -----------------
-  21      10
+  21      9
   22      0
-  23      1
-  24      2
-  25      3
-  26      4
-  27      5
-  28      6
+  23      9
+  24      4
+  25      9
+  26      2
+  27      9
+  28      1
   29      7
-  30      8
-  51      7
-  52      8
-  53      9
-  54      10
-  55      0
-  56      1
-  57      2
-  58      3
-  59      4
-  60      5
+  30      1
+  51      2
+  52      3
+  53      1
+  54      6
+  55      10
+  56      2
+  57      3
+  58      8
+  59      5
+  60      7
 
   === Table Size m = 37 ===
   Key     Index
   -----------------
-  21      21
-  22      22
-  23      23
-  24      24
-  25      25
-  26      26
-  27      27
-  28      28
-  29      29
-  30      30
-  51      14
-  52      15
-  53      16
-  54      17
-  55      18
-  56      19
-  57      20
+  21      23
+  22      30
+  23      27
+  24      2
+  25      8
+  26      33
+  27      1
+  28      35
+  29      2
+  30      21
+  51      20
+  52      20
+  53      10
+  54      23
+  55      14
+  56      33
+  57      31
   58      21
-  59      22
-  60      23
-
+  59      8
+  60      16
+  ```
+- Observation: Much better spread.  
+- Example output for strings:
+  ```
   === String Hash (m = 10) ===
   Key     Index
   -----------------
   cat     2
-  dog     4
-  bat     1
-  cow     9
-  ant     3
-  owl     8
-  bee     0
-  hen     5
-  pig     0
-  fox     3
+  dog     5
+  bat     6
+  cow     3
+  ant     4
+  owl     2
+  bee     3
+  hen     2
+  pig     7
+  fox     2
 
   === String Hash (m = 11) ===
   Key     Index
   -----------------
-  cat     10
-  dog     6
-  bat     6
-  cow     7
-  ant     9
-  owl     6
-  bee     5
-  hen     5
-  pig     0
-  fox     9
+  cat     6
+  dog     10
+  bat     7
+  cow     8
+  ant     10
+  owl     5
+  bee     7
+  hen     6
+  pig     6
+  fox     2
 
   === String Hash (m = 37) ===
   Key     Index
   -----------------
-  cat     27
-  dog     3
-  bat     28
-  cow     20
-  ant     25
-  owl     23
-  bee     26
-  hen     29
-  pig     27
-  fox     18
+  cat     9
+  dog     15
+  bat     34
+  cow     4
+  ant     13
+  owl     25
+  bee     2
+  hen     19
+  pig     3
+  fox     7
   ...
   ```
 
-- Observations: Outputs align with the analysis, showing better distribution with prime table sizes.
-- Example output for integers:
-  ```
-  Hash table (m=10): [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
-  Hash table (m=11): [10, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-  Hash table (m=37): [20, 21, 22, 23, 24, 25, 26, 27, 28, 29, ...]
-  ```
-- Example output for strings:
-  ```
-  Hash table (m=10): ["cat", "dog", "bat", "cow", "ant", ...]
-  Hash table (m=11): ["fox", "cat", "dog", "bat", "cow", ...]
-  Hash table (m=37): ["bee", "hen", "pig", "fox", "cat", ...]
-  ```
-- Observations: Outputs align with the analysis, showing better distribution with prime table sizes.
+- Observation: PERFECT distribution. 10 keys mapped to 10 unique indices.
 
 ## Analysis
-- Prime vs non-prime `m`: 
-  -When $m=10$ (non-prime), integers like 21 and 51 collided immediately because they share a common factor structure relative to the base 10 system.-When $m=37$ (prime), the distribution was significantly smoother. For integers, there were zero collisions in the sample set.
-- String Hahsing:
-  -Even with prime numbers ($m=11$), collisions can still occur if the dataset is small and specific (e.g., "dog", "bat", "owl" all mapping to 6).
-  -However, increasing the prime size to $m=37$ drastically reduced collisions, leaving only one pair ("cat" and "pig").
+- Table Size Impact ($m$):
+  -m=10: The results were poor. For integers, 21, 23, 27, 52... all mapped to 9. For strings, "cat", "owl", "hen", "fox" all mapped to 2. This proves that small, even table sizes exacerbate collisions.
+  -m=37: This was the most effective size. Specifically for strings, I achieved a perfect hash with zero collisions, where every animal name got a unique index.
+- Algorithm Performance:
+  -My "Chaos-Mix" integer algorithm successfully broke the "last digit" pattern (e.g., 21 did not map to 1). However, it revealed that without a large enough table size ($m$), collisions are unavoidable due to the Pigeonhole Principle.
+  -My "Spiral-String" algorithm worked exceptionally well with $m=37$, showing that mixing the index of characters into the calculation effectively separates similar words.
 - Conclusion:
-To minimize collisions, it is crucial to select a prime number for the table size $m$ that is sufficiently large relative to the number of keys.
+To minimize collisions, a sophisticated hash function (like the one implemented here using bitwise rotation and golden ratio mixing) is helpful, but it must be paired with a sufficiently large, prime number table size (like 37 or larger) to be truly effective.
 
 ## Reflection
-1. **Design Trade-offs**: Designing hash functions requires balancing simplicity (speed) and effectiveness (collision avoidance). The polynomial rolling hash is effective but not immune to collisions on small tables.
-2. **Impact of Table Size**: The experiment clearly showed that $m=37$ outperformed $m=10$ and $m=11$. A larger prime modulus spreads the keys out more effectively.
-3. **Real-world application**: In a real application, I would choose a much larger prime number to ensure the load factor remains low.
+1. **Complexity vs. Table Size**: I learned that even a very complex hash function (Chaos-Mix) will still fail if the table size ($m=10$) is too small and crowded.
+2. **String Hashing Success**: The "Spiral" logic which includes the character's index i proved very powerful, as it successfully distinguished all 10 string keys when $m=37$.
+3. **Data Observation**: Real data often looks messier than theory. Seeing 21 map to 9 instead of 1 confirmed my custom logic was working, but seeing collisions persist at $m=11$ taught me that hash collisions are hard to eliminate completely.
