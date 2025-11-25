@@ -4,8 +4,8 @@ This assignment focuses on the design and observation of hash functions using C/
 Students are expected to implement and analyze the behavior of hash functions, 
 evaluate their efficiency, and understand their applications in computer science.
 
-Developer: [Your Name]  
-Email: [Your email]  
+Developer: 彭睿謙 
+Email: raypong6@gmail.com
 
 ## My Hash Function
 ### Integer Keys 
