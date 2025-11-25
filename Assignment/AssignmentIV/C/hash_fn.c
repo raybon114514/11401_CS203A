@@ -7,7 +7,7 @@
  * Hash function for Integer Keys
  * Algorithm: Division Method (key % m)
  */
-int my_hash_int(int key, int m) {
+int myHashInt(int key, int m) {
     if (m <= 0) return 0;
     
     // Ensure the key is non-negative before modulo
@@ -22,7 +22,7 @@ int my_hash_int(int key, int m) {
  * Hash function for String Keys
  * Algorithm: Polynomial Rolling Hash with P = 31
  */
-int my_hash_str(const char* str, int m) {
+int myHashString(const char* str, int m) {
     if (m <= 0 || str == NULL) return 0;
 
     unsigned long hash = 0;

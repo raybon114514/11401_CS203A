@@ -6,7 +6,7 @@
 /*
  * Hash function for Integer Keys
  */
-int hashInt(int key, int m) {
+int myHashInt(int key, int m) {
     if (m <= 0) return 0;
     
     int index = key % m;
@@ -18,7 +18,7 @@ int hashInt(int key, int m) {
 /*
  * Hash function for String Keys
  */
-int hashStr(std::string str, int m) {
+int myHashString(std::string str, int m) {
     if (m <= 0) return 0;
 
     unsigned long hash = 0;
