@@ -1,33 +1,47 @@
+/* CXX/hash_fn.cpp */
 #include "hash_fn.hpp"
-#include <iostream>
 #include <string>
-#include <cmath>
+#include <cstdint>
 
-/*
- * Hash function for Integer Keys
- */
+// Integer Hash: Chaos-Mix Implementation
 int myHashInt(int key, int m) {
     if (m <= 0) return 0;
-    
-    int index = key % m;
-    if (index < 0) index += m;
-    
-    return index;
+
+    uint32_t h = static_cast<uint32_t>(key);
+
+    // Stage 1: Golden Ratio Multiplication
+    h *= 0x9E3779B9;
+
+    // Stage 2: Xorshift Avalanche
+    h ^= (h << 13);
+    h ^= (h >> 17);
+    h ^= (h << 5);
+
+    // Stage 3: Final Mix
+    h *= 0x85EBCA6B;
+
+    return (int)(h % m);
 }
 
-/*
- * Hash function for String Keysㄏ
- */
+// String Hash: Spiral-String Implementation
 int myHashString(const std::string& str, int m) {
     if (m <= 0) return 0;
 
-    unsigned long hash = 0;
-    int p = 31;
+    uint32_t h = 0x12345678; // Custom seed
 
-    // 因為 str 變成了 const reference，這裡讀取它的方式不用變
-    for (char c : str) {
-        hash = (hash * p + c) % m;
+    for (int i = 0; i < (int)str.length(); i++) {
+        unsigned char c = (unsigned char)str[i];
+
+        // Custom "Rotate-XOR-Index" logic
+        // Rotate Left 5 bits manually
+        uint32_t rotated = (h << 5) | (h >> 27);
+        
+        // Mix char, index, and magic constant
+        h = rotated ^ c ^ i ^ 0xDEADBEEF;
     }
 
-    return (int)hash;
+    // Finalizer
+    h ^= (h >> 16);
+
+    return (int)(h % m);
 }
