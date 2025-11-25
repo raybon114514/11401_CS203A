@@ -11,16 +11,16 @@ Email: raypong6@gmail.com
 ### Integer Keys 
 - Formula / pseudocode:
   ```text
-  [Your implementation here]
+  index = (key % m + m) % m
   ```
-- Rationale: [Explain your design choices and how they minimize collisions.]
+- Rationale: I used the Division Method. It is computationally efficient (O(1)) and provides uniform distribution when the table size $m$ is a prime number. I also added a check to handle negative integers correctly.
 
 ### Non-integer Keys
 - Formula / pseudocode:
   ```text
-  [Your implementation here]
+  hash = (hash * 31 + char_value) % m
   ```
-- Rationale: [Explain your approach and its effectiveness for non-integer keys.]
+- Rationale: I used the Polynomial Rolling Hash with a base of $P=31$. This method ensures that the order of characters affects the hash value (avoiding collisions for anagrams) and distributes strings effectively across the table.
 
 ## Experimental Setup
 - Table sizes tested (m): 10, 11, 37
