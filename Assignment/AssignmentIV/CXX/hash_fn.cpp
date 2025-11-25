@@ -16,14 +16,15 @@ int myHashInt(int key, int m) {
 }
 
 /*
- * Hash function for String Keys
+ * Hash function for String Keysㄏ
  */
-int myHashString(std::string str, int m) {
+int myHashString(const std::string& str, int m) {
     if (m <= 0) return 0;
 
     unsigned long hash = 0;
     int p = 31;
 
+    // 因為 str 變成了 const reference，這裡讀取它的方式不用變
     for (char c : str) {
         hash = (hash * p + c) % m;
     }

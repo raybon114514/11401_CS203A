@@ -49,4 +49,5 @@ int main() {
             std::cout << s << "\t" << myHashString(s, m) << "\n";
         std::cout << "\n";
     }
+    
 }
