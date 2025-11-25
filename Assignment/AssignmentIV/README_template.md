@@ -33,9 +33,9 @@ Email: raypong6@gmail.com
 ## Results
 | Table Size (m) | Index Sequence         | Observation              |
 |----------------|------------------------|--------------------------|
-| 10             | 1, 2, 3, 4, ...        | Pattern repeats every 10 |
-| 11             | 10, 0, 1, 2, ...       | More uniform             |
-| 37             | 20, 21, 22, 23, ...    | Near-uniform             |
+| 10             | 1, 2, 3, 4, ...        | High Collision Rate: Keys with same last digit (e.g., 21 & 51) map to same index. |
+| 11             | 10, 0, 1, 2, ...       | Better Distribution: 21 maps to 10, while 51 maps to 7. Pattern is less obvious.  |
+| 37             | 20, 21, 22, 23, ...    | No Collisions: In this dataset, every integer maps to a unique index.             |
 
 ## Compilation, Build, Execution, and Output
 
@@ -215,11 +215,15 @@ fox     18
 - Observations: Outputs align with the analysis, showing better distribution with prime table sizes.
 
 ## Analysis
-- Prime vs non-prime `m`: Prime table sizes generally result in better distribution and fewer collisions.
-- Patterns or collisions: Non-prime table sizes tend to produce repetitive patterns, leading to more collisions.
-- Improvements: Use a prime table size and a well-designed hash function to enhance distribution.
+- Prime vs non-prime `m`: 
+  -When $m=10$ (non-prime), integers like 21 and 51 collided immediately because they share a common factor structure relative to the base 10 system.-When $m=37$ (prime), the distribution was significantly smoother. For integers, there were zero collisions in the sample set.
+- String Hahsing:
+  -Even with prime numbers ($m=11$), collisions can still occur if the dataset is small and specific (e.g., "dog", "bat", "owl" all mapping to 6).
+  -However, increasing the prime size to $m=37$ drastically reduced collisions, leaving only one pair ("cat" and "pig").
+- Conclusion:
+To minimize collisions, it is crucial to select a prime number for the table size $m$ that is sufficiently large relative to the number of keys.
 
 ## Reflection
-1. Designing hash functions requires balancing simplicity and effectiveness to minimize collisions.
-2. Table size significantly impacts the uniformity of the hash distribution, with prime sizes performing better.
-3. The design using a prime table size and a linear transformation formula produced the most uniform index sequence.
+1. **Design Trade-offs**: Designing hash functions requires balancing simplicity (speed) and effectiveness (collision avoidance). The polynomial rolling hash is effective but not immune to collisions on small tables.
+2. **Impact of Table Size**: The experiment clearly showed that $m=37$ outperformed $m=10$ and $m=11$. A larger prime modulus spreads the keys out more effectively.
+3. **Real-world application**: In a real application, I would choose a much larger prime number to ensure the load factor remains low.
