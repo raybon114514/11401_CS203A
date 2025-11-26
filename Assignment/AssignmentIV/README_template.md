@@ -16,14 +16,14 @@ Email: raypong6@gmail.com
       h *= 0x85EBCA6B; // Final Mix
       index = h % m;
   ```
-- Rationale:I designed a custom method combining Multiplicative Hashing with Xorshift. By multiplying with a Golden Ratio constant and applying bitwise shifts, I induce an "Avalanche Effect". This ensures that sequential keys (e.g., 21, 22) map to widely different indices, rather than sequential ones.
+- Rationale:I use Gemini to designed a custom method combining Multiplicative Hashing with Xorshift. By multiplying with a Golden Ratio constant and applying bitwise shifts, I induce an "Avalanche Effect". This ensures that sequential keys (e.g., 21, 22) map to widely different indices, rather than sequential ones.
 
 ### Non-integer Keys
 - Formula / pseudocode:
   ```text
   h = ((h << 5) | (h >> 27)) ^ char ^ index ^ 0xDEADBEEF;
   ```
-- Rationale:I designed a "Spiral" loop that incorporates Circular Rotation and Index Mixing. Unlike standard hashing, this method XORs the position (i) of the character into the hash, ensuring that anagrams (like "cat" and "act") produce completely different results.
+- Rationale:I use Gemini to designed a "Spiral" loop that incorporates Circular Rotation and Index Mixing. Unlike standard hashing, this method XORs the position (i) of the character into the hash, ensuring that anagrams (like "cat" and "act") produce completely different results.
 
 ## Experimental Setup
 - Table sizes tested (m): 10, 11, 37
